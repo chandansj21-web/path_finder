@@ -1,0 +1,438 @@
+import React, { createContext, useContext, useState, type ReactNode } from 'react';
+
+export type Lang = 'en' | 'kn' | 'hi' | 'ta';
+
+interface LangMeta {
+  label: string;
+  flag: string;
+}
+
+export const langMeta: Record<Lang, LangMeta> = {
+  en: { label: 'English', flag: '🇬🇧' },
+  kn: { label: 'ಕನ್ನಡ', flag: '🇮🇳' },
+  hi: { label: 'हिन्दी', flag: '🇮🇳' },
+  ta: { label: 'தமிழ்', flag: '🇮🇳' },
+};
+
+type Translations = Record<string, string>;
+type TranslationsDictionary = Record<Lang, Translations>;
+
+const translations: TranslationsDictionary = {
+  en: {
+      "app.name": "PathFinder",
+      "nav.home": "Home",
+      "nav.chat": "Mitra AI",
+      "nav.after10th": "After 10th",
+      "nav.after12th": "After 12th",
+      "nav.explore": "Explore Careers",
+      "nav.exams": "Exams & Scholarships",
+      "nav.skillTest": "Skill Test",
+      "nav.roadmap": "Roadmap",
+      "nav.videos": "Videos",
+      "nav.dashboard": "Dashboard",
+      
+      "hero.title": "Your Career. Your Language. Your Path.",
+      "hero.subtitle": "AI-powered career guidance made for the students of Bharat.",
+      "btn.class10": "I'm in Class 10",
+      "btn.class1112": "I'm in Class 11/12",
+      
+      "skill.title": "Discover Your True Calling",
+      "skill.subtitle": "Take this quick 8-question test to find careers that match your personality (RIASEC model).",
+      "skill.q": "Question",
+      "skill.of": "of",
+      "skill.agree_strong": "Strongly Agree",
+      "skill.agree": "Agree",
+      "skill.neutral": "Neutral / Disagree",
+      "skill.results_title": "Your Top Personality Traits",
+      "skill.results_subtitle": "Based on your answers, here are the top 3 areas you excel in.",
+      "skill.matched": "Matched Careers",
+      "skill.discuss": "Discuss Results with Mitra 🤖",
+      "skill.retake": "Retake Test",
+
+      "a10.title": "What Next After 10th?",
+      "a10.subtitle": "Explore all the paths available to you. Tap on any card to learn more.",
+      "a10.duration": "Duration:",
+      "a10.topCareers": "Top Careers:",
+      "a10.askMitra": "Ask Mitra AI 🤖",
+      "a10.parentsTitle": "For Parents: Myth vs Fact",
+      "a10.myth": "Myth:",
+      "a10.fact": "Fact:",
+
+      "a12.title": "Life After 12th",
+      "a12.subtitle": "Select your stream to discover top career paths, required exams, and government opportunities.",
+      "a12.exams": "Entrance Exams",
+      "a12.govt": "Govt Opportunities",
+      "a12.duration": "Duration",
+      "a12.askPath": "Ask Mitra about this path",
+
+      "exp.title": "Explore Careers",
+      "exp.search": "Search for Software Developer, IAS, Doctor...",
+      "exp.ask": "Ask Mitra →",
+      "exp.trending": "Trending in Bharat",
+      "exp.govt": "Top Govt & Defence",
+      "exp.tech": "Tech & Future",
+      "exp.noResults": "No careers found matching your search. Try another search!",
+      "exp.filters": "Filters",
+      "exp.all": "All Careers",
+      "exp.matchMe": "AI Career Match 🤖",
+      "exp.category": "Category",
+      "exp.demand": "Demand Level",
+      "exp.workStyle": "Work Style",
+      "exp.salary": "Salary Range",
+
+      "ex.title": "Exams & Scholarships",
+      "ex.subtitle": "Stay ahead with deadlines for National, State (Karnataka), and Scholarship exams.",
+      "ex.search": "Search exams...",
+      "ex.ask": "Ask Mitra for details",
+
+      "rd.title": "Career Roadmaps",
+      "rd.subtitle": "Step-by-step timelines to achieve your dream career.",
+      "rd.ask": "Ask Mitra for a Study Plan 🤖",
+
+      "vid.title": "Learn from the Best",
+      "vid.subtitle": "Curated videos automatically tailored to your selected language.",
+      "vid.showing": "Showing results optimized for:",
+      "vid.auto": "Auto-search",
+
+      "chat.namaskara": "Namaskara! 🙏",
+      "chat.intro": "I am Mitra. Ask me anything about your career, studies, or future path in your preferred language.",
+      "chat.input": "Ask Mitra anything...",
+      "chat.listening": "Listening...",
+      "chat.s1": "Which stream should I choose after 10th?",
+      "chat.s2": "How to crack KCET exam?",
+      "chat.s3": "Are there scholarships for girls in Karnataka?",
+      "chat.s4": "What are the best ITI courses?",
+
+      "dash.title": "Welcome back, Student!",
+      "dash.subtitle": "Here is your career progress overview.",
+      "dash.streak": "Current Streak",
+      "dash.daily": "Daily Action Items",
+      "dash.deadlines": "Upcoming Deadlines",
+      "dash.resumeChat": "Resume Mitra Chat",
+      "dash.openChat": "Open Chat"
+  },
+  kn: {
+      "app.name": "PathFinder",
+      "nav.home": "ಮುಖಪುಟ",
+      "nav.chat": "ಮಿತ್ರ AI",
+      "nav.after10th": "10 ನೇ ತರಗತಿ ನಂತರ",
+      "nav.after12th": "12 ನೇ ತರಗತಿ ನಂತರ",
+      "nav.explore": "ವೃತ್ತಿಜೀವನ ಅನ್ವೇಷಿಸಿ",
+      "nav.exams": "ಪರೀಕ್ಷೆಗಳು & ವಿದ್ಯಾರ್ಥಿವೇತನ",
+      "nav.skillTest": "ಕೌಶಲ್ಯ ಪರೀಕ್ಷೆ",
+      "nav.roadmap": "ಮಾರ್ಗಸೂಚಿ",
+      "nav.videos": "ವೀಡಿಯೊಗಳು",
+      "nav.dashboard": "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+      
+      "hero.title": "ನಿಮ್ಮ ವೃತ್ತಿ. ನಿಮ್ಮ ಭಾಷೆ. ನಿಮ್ಮ ಮಾರ್ಗ.",
+      "hero.subtitle": "ಭಾರತದ ವಿದ್ಯಾರ್ಥಿಗಳಿಗಾಗಿ ರೂಪಿಸಲಾದ AI-ಚಾಲಿತ ವೃತ್ತಿ ಮಾರ್ಗದರ್ಶನ.",
+      "btn.class10": "ನಾನು 10 ನೇ ತರಗತಿಯಲ್ಲಿದ್ದೇನೆ",
+      "btn.class1112": "ನಾನು 11/12 ನೇ ತರಗತಿಯಲ್ಲಿದ್ದೇನೆ",
+
+      "skill.title": "ನಿಮ್ಮ ನಿಜವಾದ ವೃತ್ತಿಯನ್ನು ಕಂಡುಕೊಳ್ಳಿ",
+      "skill.subtitle": "ನಿಮ್ಮ ವ್ಯಕ್ತಿತ್ವಕ್ಕೆ ಹೊಂದುವ ವೃತ್ತಿಗಳನ್ನು ಹುಡುಕಲು ಈ 8-ಪ್ರಶ್ನೆಗಳ ಪರೀಕ್ಷೆಯನ್ನು ತೆಗೆದುಕೊಳ್ಳಿ (RIASEC ಮಾದರಿ).",
+      "skill.q": "ಪ್ರಶ್ನೆ",
+      "skill.of": "ರಲ್ಲಿ",
+      "skill.agree_strong": "ಸಂಪೂರ್ಣವಾಗಿ ಒಪ್ಪುತ್ತೇನೆ",
+      "skill.agree": "ಒಪ್ಪುತ್ತೇನೆ",
+      "skill.neutral": "ತಟಸ್ಥ / ಒಪ್ಪುವುದಿಲ್ಲ",
+      "skill.results_title": "ನಿಮ್ಮ ಉನ್ನತ ವ್ಯಕ್ತಿತ್ವ ಲಕ್ಷಣಗಳು",
+      "skill.results_subtitle": "ನಿಮ್ಮ ಉತ್ತರಗಳ ಆಧಾರದ ಮೇಲೆ, ನೀವು ಉತ್ತಮವಾಗಿರುವ ಟಾಪ್ 3 ಕ್ಷೇತ್ರಗಳು ಇಲ್ಲಿವೆ.",
+      "skill.matched": "ಹೊಂದಿಕೆಯಾದ ವೃತ್ತಿಗಳು",
+      "skill.discuss": "ಮಿತ್ರರೊಂದಿಗೆ ಫಲಿತಾಂಶಗಳನ್ನು ಚರ್ಚಿಸಿ 🤖",
+      "skill.retake": "ಮರು ಪರೀಕ್ಷೆ",
+
+      "a10.title": "10ನೇ ತರಗತಿಯ ನಂತರ ಏನು?",
+      "a10.subtitle": "ನಿಮಗೆ ಲಭ್ಯವಿರುವ ಎಲ್ಲಾ ಮಾರ್ಗಗಳನ್ನು ಅನ್ವೇಷಿಸಿ. ಇನ್ನಷ್ಟು ತಿಳಿಯಲು ಯಾವುದೇ ಕಾರ್ಡ್ ಮೇಲೆ ಟ್ಯಾಪ್ ಮಾಡಿ.",
+      "a10.duration": "ಅವಧಿ:",
+      "a10.topCareers": "ಉನ್ನತ ವೃತ್ತಿಗಳು:",
+      "a10.askMitra": "ಮಿತ್ರ AI ಯನ್ನು ಕೇಳಿ 🤖",
+      "a10.parentsTitle": "ಪೋಷಕರಿಗಾಗಿ: ಕಲ್ಪನೆ vs ವಾಸ್ತವ",
+      "a10.myth": "ಕಲ್ಪನೆ:",
+      "a10.fact": "ವಾಸ್ತವ:",
+
+      "a12.title": "12ನೇ ತರಗತಿಯ ನಂತರದ ಜೀವನ",
+      "a12.subtitle": "ಉನ್ನತ ವೃತ್ತಿ ಮಾರ್ಗಗಳು ಮತ್ತು ಅಗತ್ಯವಿರುವ ಪರೀಕ್ಷೆಗಳನ್ನು ಅನ್ವೇಷಿಸಲು ನಿಮ್ಮ ವಿಭಾಗವನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
+      "a12.exams": "ಪ್ರವೇಶ ಪರೀಕ್ಷೆಗಳು",
+      "a12.govt": "ಸರ್ಕಾರಿ ಅವಕಾಶಗಳು",
+      "a12.duration": "ಅವಧಿ",
+      "a12.askPath": "ಈ ಮಾರ್ಗದ ಬಗ್ಗೆ ಮಿತ್ರರನ್ನು ಕೇಳಿ",
+
+      "exp.title": "ವೃತ್ತಿಜೀವನ ಅನ್ವೇಷಿಸಿ",
+      "exp.search": "ಹುಡುಕಿ...",
+      "exp.ask": "ಮಿತ್ರರನ್ನು ಕೇಳಿ →",
+      "exp.trending": "ಭಾರತದಲ್ಲಿ ಟ್ರೆಂಡಿಂಗ್",
+      "exp.govt": "ಉನ್ನತ ಸರ್ಕಾರಿ ಮತ್ತು ರಕ್ಷಣೆ",
+      "exp.tech": "ತಂತ್ರಜ್ಞಾನ ಮತ್ತು ಭವಿಷ್ಯ",
+      "exp.noResults": "ಯಾವುದೇ ವೃತ್ತಿಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ಮತ್ತೊಮ್ಮೆ ಹುಡುಕಿ!",
+      "exp.filters": "ಫಿಲ್ಟರ್‌ಗಳು",
+      "exp.all": "ಎಲ್ಲಾ ವೃತ್ತಿಗಳು",
+      "exp.matchMe": "AI ವೃತ್ತಿ ಹೊಂದಾಣಿಕೆ 🤖",
+      "exp.category": "ವರ್ಗ",
+      "exp.demand": "ಬೇಡಿಕೆ",
+      "exp.workStyle": "ಕೆಲಸದ ಶೈಲಿ",
+      "exp.salary": "ಸಂಬಳ",
+
+      "ex.title": "ಪರೀಕ್ಷೆಗಳು & ವಿದ್ಯಾರ್ಥಿವೇತನ",
+      "ex.subtitle": "ರಾಷ್ಟ್ರೀಯ ಮತ್ತು ರಾಜ್ಯ ಪರೀಕ್ಷೆಗಳ ಗಡುವಿನೊಂದಿಗೆ ಮುಂದೆ ಇರಿ.",
+      "ex.search": "ಪರೀಕ್ಷೆಗಳನ್ನು ಹುಡುಕಿ...",
+      "ex.ask": "ವಿವರಗಳಿಗಾಗಿ ಮಿತ್ರರನ್ನು ಕೇಳಿ",
+
+      "rd.title": "ವೃತ್ತಿ ಮಾರ್ಗಸೂಚಿಗಳು",
+      "rd.subtitle": "ನಿಮ್ಮ ಕನಸಿನ ವೃತ್ತಿಯನ್ನು ಸಾಧಿಸಲು ಹಂತ-ಹಂತದ ಟೈಮ್‌ಲೈನ್‌ಗಳು.",
+      "rd.ask": "ಅಧ್ಯಯನ ಯೋಜನೆಗಾಗಿ ಮಿತ್ರರನ್ನು ಕೇಳಿ 🤖",
+
+      "vid.title": "ಅತ್ಯುತ್ತಮವಾದವರಿಂದ ಕಲಿಯಿರಿ",
+      "vid.subtitle": "ನಿಮ್ಮ ಆಯ್ದ ಭಾಷೆಗೆ ಸರಿಹೊಂದುವ ವೀಡಿಯೊಗಳು.",
+      "vid.showing": "ಇದಕ್ಕಾಗಿ ಫಲಿತಾಂಶಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ:",
+      "vid.auto": "ಸ್ವಯಂ ಹುಡುಕಾಟ",
+
+      "chat.namaskara": "ನಮಸ್ಕಾರ! 🙏",
+      "chat.intro": "ನಾನು ಮಿತ್ರ. ನಿಮ್ಮ ವೃತ್ತಿ, ಅಧ್ಯಯನ ಅಥವಾ ಭವಿಷ್ಯದ ಬಗ್ಗೆ ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಏನಾದರೂ ಕೇಳಿ.",
+      "chat.input": "ಮಿತ್ರರನ್ನು ಏನಾದರೂ ಕೇಳಿ...",
+      "chat.listening": "ಕೇಳಿಸಿಕೊಳ್ಳುತ್ತಿದ್ದೇನೆ...",
+      "chat.s1": "10ನೇ ತರಗತಿಯ ನಂತರ ಯಾವ ವಿಭಾಗವನ್ನು ಆಯ್ಕೆ ಮಾಡಬೇಕು?",
+      "chat.s2": "KCET ಪರೀಕ್ಷೆಯಲ್ಲಿ ಉತ್ತೀರ್ಣರಾಗುವುದು ಹೇಗೆ?",
+      "chat.s3": "ಕರ್ನಾಟಕದಲ್ಲಿ ಹುಡುಗಿಯರಿಗೆ ಸ್ಕಾಲರ್‌ಶಿಪ್‌ಗಳಿವೆಯೇ?",
+      "chat.s4": "ಉತ್ತಮ ITI ಕೋರ್ಸ್‌ಗಳು ಯಾವುವು?",
+
+      "dash.title": "ಮರಳಿ ಸ್ವಾಗತ, ವಿದ್ಯಾರ್ಥಿ!",
+      "dash.subtitle": "ನಿಮ್ಮ ವೃತ್ತಿಜೀವನದ ಪ್ರಗತಿಯ ಅವಲೋಕನ ಇಲ್ಲಿದೆ.",
+      "dash.streak": "ಪ್ರಸ್ತುತ ಸ್ಟ್ರೀಕ್",
+      "dash.daily": "ದೈನಂದಿನ ಕ್ರಿಯೆಗಳು",
+      "dash.deadlines": "ಮುಂಬರುವ ಗಡುವುಗಳು",
+      "dash.resumeChat": "ಮಿತ್ರ ಚಾಟ್ ಮುಂದುವರಿಸಿ",
+      "dash.openChat": "ಚಾಟ್ ತೆರೆಯಿರಿ"
+  },
+  hi: {
+      "app.name": "PathFinder",
+      "nav.home": "होम",
+      "nav.chat": "मित्र AI",
+      "nav.after10th": "10वीं के बाद",
+      "nav.after12th": "12वीं के बाद",
+      "nav.explore": "करियर एक्सप्लोर करें",
+      "nav.exams": "परीक्षाएं और छात्रवृत्ति",
+      "nav.skillTest": "कौशल परीक्षण",
+      "nav.roadmap": "रोडमैप",
+      "nav.videos": "वीडियो",
+      "nav.dashboard": "डैशबोर्ड",
+      
+      "hero.title": "आपका करियर. आपकी भाषा. आपका रास्ता.",
+      "hero.subtitle": "भारत के छात्रों के लिए बनाया गया AI-संचालित करियर मार्गदर्शन।",
+      "btn.class10": "मैं 10वीं कक्षा में हूँ",
+      "btn.class1112": "मैं 11/12वीं कक्षा में हूँ",
+
+      "skill.title": "अपना सही करियर खोजें",
+      "skill.subtitle": "अपने व्यक्तित्व (RIASEC मॉडल) से मेल खाने वाले करियर को खोजने के लिए यह त्वरित 8-प्रश्नों का परीक्षण लें।",
+      "skill.q": "प्रश्न",
+      "skill.of": "/",
+      "skill.agree_strong": "पूर्णतः सहमत",
+      "skill.agree": "सहमत",
+      "skill.neutral": "तटस्थ / असहमत",
+      "skill.results_title": "आपके शीर्ष व्यक्तित्व लक्षण",
+      "skill.results_subtitle": "आपके उत्तरों के आधार पर, यहाँ शीर्ष 3 क्षेत्र हैं जिनमें आप उत्कृष्ट हैं।",
+      "skill.matched": "मिलान वाले करियर",
+      "skill.discuss": "मित्र के साथ परिणामों पर चर्चा करें 🤖",
+      "skill.retake": "फिर से परीक्षण लें",
+
+      "a10.title": "10वीं के बाद क्या?",
+      "a10.subtitle": "उपलब्ध सभी रास्तों का अन्वेषण करें। अधिक जानने के लिए किसी भी कार्ड पर टैप करें।",
+      "a10.duration": "अवधि:",
+      "a10.topCareers": "शीर्ष करियर:",
+      "a10.askMitra": "मित्र AI से पूछें 🤖",
+      "a10.parentsTitle": "माता-पिता के लिए: मिथक बनाम तथ्य",
+      "a10.myth": "मिथक:",
+      "a10.fact": "तथ्य:",
+
+      "a12.title": "12वीं के बाद का जीवन",
+      "a12.subtitle": "शीर्ष करियर पथ और आवश्यक परीक्षा खोजने के लिए अपनी स्ट्रीम चुनें।",
+      "a12.exams": "प्रवेश परीक्षाएं",
+      "a12.govt": "सरकारी अवसर",
+      "a12.duration": "अवधि",
+      "a12.askPath": "इस रास्ते के बारे में मित्र से पूछें",
+
+      "exp.title": "करियर एक्सप्लोर करें",
+      "exp.search": "खोजें...",
+      "exp.ask": "मित्र से पूछें →",
+      "exp.trending": "भारत में ट्रेंडिंग",
+      "exp.govt": "शीर्ष सरकारी और रक्षा",
+      "exp.tech": "तकनीक और भविष्य",
+      "exp.noResults": "कोई करियर नहीं मिला। फिर से खोजें!",
+      "exp.filters": "फ़िल्टर",
+      "exp.all": "सभी करियर",
+      "exp.matchMe": "AI करियर मैच 🤖",
+      "exp.category": "श्रेणी",
+      "exp.demand": "मांग स्तर",
+      "exp.workStyle": "कार्य शैली",
+      "exp.salary": "वेतन सीमा",
+
+      "ex.title": "परीक्षाएं और छात्रवृत्ति",
+      "ex.subtitle": "राष्ट्रीय और राज्य परीक्षाओं की समय सीमा के साथ आगे रहें।",
+      "ex.search": "परीक्षाएं खोजें...",
+      "ex.ask": "विवरण के लिए मित्र से पूछें",
+
+      "rd.title": "करियर रोडमैप",
+      "rd.subtitle": "अपने सपनों का करियर हासिल करने के लिए चरण-दर-चरण टाइमलाइन।",
+      "rd.ask": "स्टडी प्लान के लिए मित्र से पूछें 🤖",
+
+      "vid.title": "सर्वश्रेष्ठ से सीखें",
+      "vid.subtitle": "आपकी चुनी हुई भाषा के अनुकूल वीडियो।",
+      "vid.showing": "इसके लिए परिणाम दिखा रहा है:",
+      "vid.auto": "स्वतः खोज",
+
+      "chat.namaskara": "नमस्कार! 🙏",
+      "chat.intro": "मैं मित्र हूँ। अपने करियर, पढ़ाई या भविष्य के बारे में अपनी भाषा में कुछ भी पूछें।",
+      "chat.input": "मित्र से कुछ भी पूछें...",
+      "chat.listening": "सुन रहा हूँ...",
+      "chat.s1": "10वीं के बाद कौन सी स्ट्रीम चुनें?",
+      "chat.s2": "KCET परीक्षा कैसे पास करें?",
+      "chat.s3": "क्या लड़कियों के लिए स्कॉलरशिप हैं?",
+      "chat.s4": "सबसे अच्छे ITI कोर्स कौन से हैं?",
+
+      "dash.title": "वापसी पर स्वागत है, छात्र!",
+      "dash.subtitle": "यहाँ आपके करियर की प्रगति का अवलोकन है।",
+      "dash.streak": "वर्तमान स्ट्रीक",
+      "dash.daily": "दैनिक कार्य",
+      "dash.deadlines": "आगामी समय सीमा",
+      "dash.resumeChat": "मित्र चैट फिर से शुरू करें",
+      "dash.openChat": "चैट खोलें"
+  },
+  ta: {
+      "app.name": "PathFinder",
+      "nav.home": "முகப்பு",
+      "nav.chat": "மித்ரா AI",
+      "nav.after10th": "10 ஆம் வகுப்புக்கு பின்",
+      "nav.after12th": "12 ஆம் வகுப்புக்கு பின்",
+      "nav.explore": "தொழில்களை ஆராய்க",
+      "nav.exams": "தேர்வுகள் மற்றும் உதவித்தொகை",
+      "nav.skillTest": "திறன் தேர்வு",
+      "nav.roadmap": "வழித்தடம்",
+      "nav.videos": "வீடியோக்கள்",
+      "nav.dashboard": "கட்டுப்பாட்டுப் பலகம்",
+      
+      "hero.title": "உங்கள் தொழில். உங்கள் மொழி. உங்கள் பாதை.",
+      "hero.subtitle": "பாரதத்தின் மாணவர்களுக்காக உருவாக்கப்பட்ட AI-அடிப்படையிலான தொழில் வழிகாட்டல்.",
+      "btn.class10": "நான் 10 ஆம் வகுப்பில் படிக்கிறேன்",
+      "btn.class1112": "நான் 11/12 ஆம் வகுப்பில் படிக்கிறேன்",
+
+      "skill.title": "உங்கள் உண்மையான அழைப்பைக் கண்டறியவும்",
+      "skill.subtitle": "உங்கள் ஆளுமையுடன் (RIASEC மாதிரி) பொருந்தக்கூடிய தொழில்களைக் கண்டறிய இந்த 8-கேள்வி தேர்வை எடுக்கவும்.",
+      "skill.q": "கேள்வி",
+      "skill.of": "/",
+      "skill.agree_strong": "முற்றிலும் ஏற்கிறேன்",
+      "skill.agree": "ஏற்கிறேன்",
+      "skill.neutral": "நடுநிலை / ஏற்கவில்லை",
+      "skill.results_title": "உங்கள் சிறந்த ஆளுமைப் பண்புகள்",
+      "skill.results_subtitle": "உங்கள் பதில்களின் அடிப்படையில், நீங்கள் சிறந்து விளங்கும் முதல் 3 பகுதிகள் இங்கே.",
+      "skill.matched": "பொருந்திய தொழில்கள்",
+      "skill.discuss": "முடிவுகளை மித்ராவுடன் விவாதிக்கவும் 🤖",
+      "skill.retake": "மீண்டும் தேர்வு எழுதுக",
+
+      "a10.title": "10 ஆம் வகுப்புக்குப் பிறகு என்ன?",
+      "a10.subtitle": "உங்களுக்கு கிடைக்கும் அனைத்து பாதைகளையும் ஆராயுங்கள்.",
+      "a10.duration": "காலம்:",
+      "a10.topCareers": "சிறந்த தொழில்கள்:",
+      "a10.askMitra": "மித்ரா AI ஐக் கேளுங்கள் 🤖",
+      "a10.parentsTitle": "பெற்றோருக்காக: கட்டுக்கதை vs உண்மை",
+      "a10.myth": "கட்டுக்கதை:",
+      "a10.fact": "உண்மை:",
+
+      "a12.title": "12 ஆம் வகுப்புக்குப் பிறகு வாழ்க்கை",
+      "a12.subtitle": "சிறந்த தொழில் பாதைகள் மற்றும் நுழைவுத் தேர்வுகளைக் கண்டறிய உங்கள் ஸ்ட்ரீமைத் தேர்ந்தெடுக்கவும்.",
+      "a12.exams": "நுழைவுத் தேர்வுகள்",
+      "a12.govt": "அரசு வாய்ப்புகள்",
+      "a12.duration": "காலம்",
+      "a12.askPath": "இந்த பாதையை பற்றி மித்ராவிடம் கேளுங்கள்",
+
+      "exp.title": "தொழில்களை ஆராய்க",
+      "exp.search": "தேடுக...",
+      "exp.ask": "மித்ராவிடம் கேளுங்கள் →",
+      "exp.trending": "இந்தியாவில் டிரெண்டிங்",
+      "exp.govt": "சிறந்த அரசு மற்றும் பாதுகாப்பு",
+      "exp.tech": "தொழில்நுட்பம் மற்றும் எதிர்காலம்",
+      "exp.noResults": "எதுவும் கிடைக்கவில்லை. மீண்டும் தேடுக!",
+      "exp.filters": "வடிப்பான்கள்",
+      "exp.all": "அனைத்து தொழில்கள்",
+      "exp.matchMe": "AI தொழில் பொருத்தம் 🤖",
+      "exp.category": "வகை",
+      "exp.demand": "தேவை",
+      "exp.workStyle": "பணி முறை",
+      "exp.salary": "சம்பளம்",
+
+      "ex.title": "தேர்வுகள் மற்றும் உதவித்தொகை",
+      "ex.subtitle": "தேசிய மற்றும் மாநில தேர்வுகளின் தேதிகளுடன் முன் இருங்கள்.",
+      "ex.search": "தேர்வுகளை தேடுக...",
+      "ex.ask": "விவரங்களுக்கு மித்ராவிடம் கேளுங்கள்",
+
+      "rd.title": "தொழில் வழிகாட்டுதல்கள்",
+      "rd.subtitle": "உங்கள் கனவு தொழிலை அடைய படிப்படியான காலக்கெடு.",
+      "rd.ask": "படிப்புத் திட்டத்திற்கு மித்ராவிடம் கேளுங்கள் 🤖",
+
+      "vid.title": "சிறந்தவர்களிடமிருந்து கற்றுக்கொள்ளுங்கள்",
+      "vid.subtitle": "நீங்கள் தேர்ந்தெடுத்த மொழிக்கு ஏற்ற வீடியோக்கள்.",
+      "vid.showing": "இதற்கான முடிவுகளைக் காட்டுகிறது:",
+      "vid.auto": "தானியங்கி தேடல்",
+
+      "chat.namaskara": "வணக்கம்! 🙏",
+      "chat.intro": "நான் மித்ரா. உங்கள் தொழில் அல்லது எதிர்காலம் பற்றி உங்கள் மொழியில் என்னிடம் கேளுங்கள்.",
+      "chat.input": "மித்ராவிடம் கேளுங்கள்...",
+      "chat.listening": "கேட்கிறேன்...",
+      "chat.s1": "10 ஆம் வகுப்புக்குப் பிறகு நான் என்ன படிக்க வேண்டும்?",
+      "chat.s2": "KCET தேர்வில் வெற்றி பெறுவது எப்படி?",
+      "chat.s3": "பெண்களுக்கு உதவித்தொகை உள்ளதா?",
+      "chat.s4": "சிறந்த ITI படிப்புகள் என்ன?",
+
+      "dash.title": "மீண்டும் வருக, மாணவரே!",
+      "dash.subtitle": "உங்கள் தொழில் முன்னேற்றத்தின் கண்ணோட்டம் இங்கே.",
+      "dash.streak": "தற்போதைய ஸ்ட்ரீக்",
+      "dash.daily": "தினசரி செயல்கள்",
+      "dash.deadlines": "வரவிருக்கும் தேதிகள்",
+      "dash.resumeChat": "மித்ரா சாட்டைத் தொடரவும்",
+      "dash.openChat": "சாட்டைத் திறக்கவும்"
+  }
+};
+
+interface LanguageContextType {
+  lang: Lang;
+  setLang: (lang: Lang) => void;
+  t: (key: string) => string;
+}
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+  const [lang, setLangState] = useState<Lang>(() => {
+    const saved = localStorage.getItem('pathfinder.lang');
+    if (saved && (saved === 'en' || saved === 'kn' || saved === 'hi' || saved === 'ta')) {
+      return saved as Lang;
+    }
+    const navLang = navigator.language.split('-')[0];
+    if (navLang === 'kn' || navLang === 'hi' || navLang === 'ta') {
+      return navLang as Lang;
+    }
+    return 'en';
+  });
+
+  const setLang = (newLang: Lang) => {
+    localStorage.setItem('pathfinder.lang', newLang);
+    setLangState(newLang);
+  };
+
+  const t = (key: string): string => {
+    return translations[lang][key] || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ lang, setLang, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+export const useLang = (): LanguageContextType => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLang must be used within a LanguageProvider');
+  }
+  return context;
+};

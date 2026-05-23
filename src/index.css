@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Noto+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0B1437; /* navy-900 */
+    --foreground: #ffffff;
+  }
+
+  body {
+    @apply bg-[#0B1437] text-white font-body min-h-screen overflow-x-hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-glass;
+  }
+  
+  .glass-nav {
+    @apply bg-[#0B1437]/80 backdrop-blur-md border-b border-white/10;
+  }
+  
+  .text-glow-gold {
+    text-shadow: 0 0 20px rgba(245, 194, 66, 0.5);
+  }
+  
+  .text-glow-cyan {
+    text-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+  }
+}
+
+/* Starfield animation */
+.stars-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  background: radial-gradient(ellipse at bottom, #111C44 0%, #0B1437 100%);
+}
+
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle linear infinite;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.1; transform: translateY(0); }
+  50% { opacity: 1; }
+  100% { opacity: 0.1; transform: translateY(-100vh); }
+}
+
+/* Floating orb animation */
+.floating-orb {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
