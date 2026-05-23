@@ -218,7 +218,7 @@ Examples: [YT: what is JEE main exam]. If no concept video helps: [YT: none]`;
       if (error.message === 'NO_API_KEY') {
         setMessages([...newMessages, { role: 'assistant', content: `Please add your \`VITE_GEMINI_API_KEY\` to the \`.env\` file in the root of the project to enable AI responses! [YT: none]` }]);
       } else {
-        setMessages([...newMessages, { role: 'assistant', content: `Oops! My network seems a bit weak. Please try again later. [YT: none]` }]);
+        setMessages([...newMessages, { role: 'assistant', content: `Oops! My network seems a bit weak. (Error: ${error.message}). [YT: none]` }]);
       }
     } finally {
       setIsLoading(false);
