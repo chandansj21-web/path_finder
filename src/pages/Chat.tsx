@@ -158,10 +158,6 @@ const Chat = () => {
         throw new Error('NO_API_KEY');
       }
 
-      const { GoogleGenerativeAI } = await import('@google/generative-ai');
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
       const LANGUAGE_NAMES = {
         en: 'English',
         hi: 'Hindi',
@@ -178,22 +174,38 @@ When recommending a career, include: 1) What it is 2) How to get there from curr
 CRITICAL OUTPUT FORMAT: At the very end of every reply append ONE line: [YT: <english search query, max 6 words>]
 Examples: [YT: what is JEE main exam]. If no concept video helps: [YT: none]`;
 
-      // Convert history to Gemini format
-      const history = messages.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }]
-      }));
+      // Convert history to OpenAI standard format
+      const openaiMessages = [
+        { role: 'system', content: systemPrompt },
+        ...messages.map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        })),
+        { role: 'user', content: text }
+      ];
 
-      const chat = model.startChat({
-        history: [
-          { role: 'user', parts: [{ text: `SYSTEM INSTRUCTIONS: ${systemPrompt}` }] },
-          { role: 'model', parts: [{ text: 'Understood. I will act as Mitra.' }] },
-          ...history
-        ]
+      const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "google/gemma-2-2b-it",
+          messages: openaiMessages,
+          temperature: 0.2,
+          top_p: 0.7,
+          max_tokens: 1024
+        })
       });
 
-      const result = await chat.sendMessage(text);
-      const aiReply = result.response.text();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const aiReply = data.choices[0].message.content;
       
       setMessages([...newMessages, { role: 'assistant', content: aiReply }]);
       
