@@ -176,13 +176,17 @@ Examples: [YT: what is JEE main exam]. If no concept video helps: [YT: none]`;
 
       // Convert history to OpenAI standard format
       const openaiMessages = [
-        { role: 'system', content: systemPrompt },
         ...messages.map(msg => ({
           role: msg.role === 'user' ? 'user' : 'assistant',
           content: msg.content
         })),
         { role: 'user', content: text }
       ];
+
+      // Prepend system prompt to the first user message, as NVIDIA NIM gemma-2-2b-it does not support system role
+      if (openaiMessages.length > 0 && openaiMessages[0].role === 'user') {
+        openaiMessages[0].content = `Instruction: ${systemPrompt}\n\nUser: ${openaiMessages[0].content}`;
+      }
 
       const response = await fetch("/api/nvidia/chat/completions", {
         method: "POST",
