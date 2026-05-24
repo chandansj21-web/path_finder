@@ -184,7 +184,7 @@ Examples: [YT: what is JEE main exam]. If no concept video helps: [YT: none]`;
         { role: 'user', content: text }
       ];
 
-      const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+      const response = await fetch("/api/nvidia/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
