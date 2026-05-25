@@ -3,6 +3,7 @@ import { useLang, langMeta } from '../contexts/LanguageContext';
 import { Send, Bot, User, Mic, MicOff, Volume2, VolumeX, StopCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -23,6 +24,89 @@ const SUGGESTIONS = [
   "What are the best ITI courses?",
 ];
 
+const getOfflineResponse = (inputText: string): string => {
+  const query = inputText.toLowerCase();
+  
+  if (query.includes('10') || query.includes('tenth') || query.includes('after 10')) {
+    return `Namaskara! Choosing your path after 10th standard is a very exciting journey! Here are the 4 main paths in Karnataka:
+
+1. **PUC (Pre-University Course)**: 
+   - *Science Stream (PCMB/PCMC)*: Best for Engineering, Medical, B.Sc., or Computer Applications.
+   - *Commerce Stream (CEBA/SEBA)*: Ideal for Chartered Accountancy (CA), Business Administration (BBA), or Commerce (B.Com).
+   - *Arts Stream*: Perfect for IAS/IPS preparation, Journalism, Law, or Literature.
+2. **Diploma in Engineering (3 years)**: Practical technical learning in fields like CS, Mechanical, or Civil. Leads directly to job opportunities or 2nd-year engineering entry (Lateral Entry).
+3. **ITI Courses (1-2 years)**: Skills-focused trade courses like Electrician, Plumber, or Fitter. Extremely good for immediate local employment.
+4. **Paramedical Courses**: Short courses for healthcare assistant roles.
+
+What subjects do you enjoy studying the most? I can help you pick the right stream! 🎓
+
+[YT: career options after 10th standard in karnataka]`;
+  }
+  
+  if (query.includes('12') || query.includes('twelfth') || query.includes('after 12')) {
+    return `Choosing a path after 12th standard is a crucial step for your professional future! 
+
+* **If you took Science**:
+  - *Engineering (BE/B.Tech)*: Admissions via KCET/COMEDK.
+  - *Medical (MBBS/BDS/BAMS)*: Admissions via NEET exam.
+  - *Pure Sciences*: B.Sc. in Physics, Chemistry, Mathematics, or Biotechnology.
+  - *Computer Applications*: BCA or B.Sc. CS.
+* **If you took Commerce**:
+  - *B.Com / BBA*: Great foundation for MBA or corporate finance.
+  - *Professional Certifications*: CA (Chartered Accountancy), CS (Company Secretary), or CMA.
+* **If you took Arts**:
+  - *BA / BSW / BFA*: For languages, sociology, social work, or fine arts.
+  - *Law (BA LLB)*: Integrated 5-year professional program.
+
+What stream did you choose in your PUC? Let me know, and I will recommend colleges near you! 🏛️
+
+[YT: what to do after 12th standard in india]`;
+  }
+
+  if (query.includes('kcet') || query.includes('cet') || query.includes('exam')) {
+    return `KCET (Karnataka Common Entrance Test) is extremely important for securing a government-quota engineering or agriculture seat in Karnataka!
+
+**Mitra's Top 3 Tips to Crack KCET:**
+1. **Master the PU Syllabus**: 100% of the questions come from the 1st and 2nd PUC syllabus. Clear your concepts!
+2. **Practice Speed & Timing**: You have 60 questions in 80 minutes for each subject. Practice previous years' papers with a timer!
+3. **Formula & Shortcut Notes**: Create short formula sheets for Mathematics and Physics, and name reactions for Chemistry.
+
+Would you like some recommendations on free local YouTube channels to study for KCET? 📚
+
+[YT: how to prepare for kcet exam in karnataka]`;
+  }
+
+  if (query.includes('scholarship') || query.includes('girl') || query.includes('money') || query.includes('free')) {
+    return `Yes! There are fantastic government and private scholarships specifically designed to help students, especially girls and rural scholars in Karnataka:
+
+1. **SSP Scholarship (State Scholarship Portal)**: Post-matric scholarship for SC/ST/OBC/Minority students.
+2. **Prathibha Puraskar**: For high scorers in 10th/12th exams.
+3. **Vidyasiri Scheme**: Hostel and food support for rural students.
+4. **LIC Golden Jubilee Scholarship**: For economically weaker sections.
+5. **Private Corporate Scholarships**: Schemes by companies like Santoor (for girls), Jindal, and Infosys.
+
+Never let financial concerns stop your education. We can find a way! 🌟
+
+[YT: best scholarships for students in karnataka]`;
+  }
+
+  return `Namaskara! I am Mitra (मित्र / ಮಿತ್ರ), your career counselor friend. 
+
+I am currently running in **Offline Demonstration Mode** because the configured API key has depleted its quota or is restricted. 
+
+To help you explore, I can answer questions about:
+1. 🎓 **Options after 10th standard** (PUC streams, ITI, Diploma)
+2. 🏛️ **Options after 12th standard** (Degrees, Engineering, Commerce, Arts)
+3. 📝 **State exams like KCET or competitive tests**
+4. 💰 **Scholarships & financial help**
+
+*To unlock full AI conversations, you can get a free API key from Google AI Studio and put it in your \`.env\` file.* 
+
+What would you like to explore today? 🚀
+
+[YT: career guidance for rural students]`;
+};
+
 const Chat = () => {
   const { lang, t } = useLang();
   const location = useLocation();
@@ -34,6 +118,7 @@ const Chat = () => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [autoSpeak, setAutoSpeak] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -174,44 +259,31 @@ When recommending a career, include: 1) What it is 2) How to get there from curr
 CRITICAL OUTPUT FORMAT: At the very end of every reply append ONE line: [YT: <english search query, max 6 words>]
 Examples: [YT: what is JEE main exam]. If no concept video helps: [YT: none]`;
 
-      // Convert history to OpenAI standard format
-      const openaiMessages = [
-        ...messages.map(msg => ({
-          role: msg.role === 'user' ? 'user' : 'assistant',
-          content: msg.content
-        })),
-        { role: 'user', content: text }
-      ];
-
-      // Prepend system prompt to the first user message, as NVIDIA NIM gemma-2-2b-it does not support system role
-      if (openaiMessages.length > 0 && openaiMessages[0].role === 'user') {
-        openaiMessages[0].content = `Instruction: ${systemPrompt}\n\nUser: ${openaiMessages[0].content}`;
-      }
-
-      const response = await fetch("/api/nvidia/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "google/gemma-2-2b-it",
-          messages: openaiMessages,
-          temperature: 0.2,
-          top_p: 0.7,
-          max_tokens: 1024
-        })
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-3.5-flash',
+        systemInstruction: systemPrompt
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
-      }
+      const geminiHistory = messages.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.content }]
+      }));
 
-      const data = await response.json();
-      const aiReply = data.choices[0].message.content;
+      const chat = model.startChat({
+        history: geminiHistory,
+        generationConfig: {
+          temperature: 0.2,
+          topP: 0.7,
+          maxOutputTokens: 1024,
+        }
+      });
+
+      const result = await chat.sendMessage(text);
+      const aiReply = result.response.text();
       
       setMessages([...newMessages, { role: 'assistant', content: aiReply }]);
+      setIsOffline(false);
       
       if (autoSpeak) {
         speakText(aiReply);
@@ -219,8 +291,23 @@ Examples: [YT: what is JEE main exam]. If no concept video helps: [YT: none]`;
       
     } catch (error: any) {
       console.error("Error talking to Mitra:", error);
-      if (error.message === 'NO_API_KEY') {
-        setMessages([...newMessages, { role: 'assistant', content: `Please add your \`VITE_GEMINI_API_KEY\` to the \`.env\` file in the root of the project to enable AI responses! [YT: none]` }]);
+      
+      const errorMessage = error.message || "";
+      const isApiKeyIssue = errorMessage.includes("API_KEY") || 
+                           errorMessage.includes("403") || 
+                           errorMessage.includes("429") || 
+                           errorMessage.includes("quota") || 
+                           errorMessage.includes("denied") ||
+                           errorMessage.includes("not found") ||
+                           errorMessage.includes("completions");
+
+      if (isApiKeyIssue) {
+        setIsOffline(true);
+        const offlineReply = getOfflineResponse(text);
+        setMessages([...newMessages, { role: 'assistant', content: offlineReply }]);
+        if (autoSpeak) {
+          speakText(offlineReply);
+        }
       } else {
         setMessages([...newMessages, { role: 'assistant', content: `Oops! My network seems a bit weak. (Error: ${error.message}). [YT: none]` }]);
       }
@@ -262,6 +349,32 @@ Examples: [YT: what is JEE main exam]. If no concept video helps: [YT: none]`;
           </button>
         </div>
       </div>
+
+      {/* Offline Mode Banner */}
+      {isOffline && (
+        <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 text-xs sm:text-sm text-amber-300 flex items-center justify-between gap-4 z-10 backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <span className="text-base">⚠️</span>
+            <span>
+              <strong>Demo Mode</strong>: API key quota is depleted. 
+              <a 
+                href="https://aistudio.google.com/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="underline ml-1 font-semibold hover:text-amber-200 transition-colors"
+              >
+                Get a 100% Free Gemini API Key here
+              </a> and paste in `.env` to unlock full AI counselor.
+            </span>
+          </div>
+          <button 
+            onClick={() => setIsOffline(false)} 
+            className="text-amber-400 hover:text-amber-200 transition-colors font-bold text-base px-1"
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 custom-scrollbar relative">
